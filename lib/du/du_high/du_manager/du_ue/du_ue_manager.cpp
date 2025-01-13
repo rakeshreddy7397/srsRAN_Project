@@ -287,3 +287,16 @@ void du_ue_manager::update_crnti(du_ue_index_t ue_index, rnti_t crnti)
   // Update UE context with new C-RNTI.
   u.rnti = crnti;
 }
+
+std::vector<rnti_t> du_ue_manager::get_rnti_list() {
+    std::vector<rnti_t> rnti_list;
+    
+    // Iterate over rnti_to_ue_index to collect all rnti_t keys
+    for (const auto& pair : rnti_to_ue_index) {
+        const rnti_t& rnti = pair.first;
+        if ((rnti != rnti_t::INVALID_RNTI) and is_crnti(rnti)) {
+          rnti_list.push_back(rnti);
+        }
+    }    
+    return rnti_list;
+}

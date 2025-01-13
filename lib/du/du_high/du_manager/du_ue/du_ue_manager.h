@@ -84,6 +84,7 @@ public:
   }
 
   gtpu_teid_pool& get_f1u_teid_pool() override { return *f1u_teid_pool; }
+  std::vector<rnti_t> get_rnti_list();
 
 private:
   expected<du_ue*, std::string> add_ue(const du_ue_context& ue_ctx, ue_ran_resource_configurator ue_ran_res) override;

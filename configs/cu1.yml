@@ -31,7 +31,7 @@ e2:
   port: 36421                       # RIC port
 
 log:
-  filename: /tmp/cu.log
+  filename: /tmp/cu1.log
   all_level: info # debug | info | warning
   cu_level: debug                     # Optional TEXT (warning). Sets the CU log level. 
   rrc_level: debug                    # Optional TEXT (warning). Sets RRC log level.
@@ -47,9 +47,10 @@ log:
   f1ap_json_enabled: false              # Optional BOOLEAN (false). Enables the JSON logging of F1AP PDUs.
   hex_max_size: 0                       # Optional UINT (0). Sets maximum number of bytes to print for hex messages. Supported: [0 - 1024]
   f1u_level: warning                    # Optional TEXT (warning). Sets F1u log level.
-  e2ap_level: warning                   # Optional TEXT (warning). Sets E2AP log level.
+  e2ap_level: debug                   # Optional TEXT (warning). Sets E2AP log level.
   pdcp_level: warning                   # Optional TEXT (warning). Sets PDCP log level.
 
 pcap:
   ngap_enable: false
   ngap_filename: /tmp/cu_ngap.pcap
+

@@ -804,6 +804,13 @@ public:
       CORO_RETURN(srs_du::du_mac_sched_control_config_response{true, true, true});
     });
   }
+  async_task<bool> handle_handover_control(srs_du::du_ho_control_config ctrl_config) override
+  {
+    return launch_async([](coro_context<async_task<bool>>& ctx) {
+      CORO_BEGIN(ctx);
+      CORO_RETURN(true);
+    });
+  }
 };
 
 /// Fixture class for E2AP
@@ -826,6 +833,8 @@ protected:
   std::unique_ptr<e2sm_interface>                     e2sm_rc_iface;
   std::unique_ptr<e2sm_control_service>               e2sm_rc_control_service_style2;
   std::unique_ptr<e2sm_control_action_executor>       rc_control_action_2_6_executor;
+  std::unique_ptr<e2sm_control_service>               e2sm_rc_control_service_style3;
+  std::unique_ptr<e2sm_control_action_executor>       rc_control_action_3_1_executor;
   std::unique_ptr<e2sm_handler>                       e2sm_kpm_packer;
   std::unique_ptr<e2sm_rc_asn1_packer>                e2sm_rc_packer;
   std::unique_ptr<srs_du::du_configurator>            rc_param_configurator;
@@ -964,6 +973,11 @@ class e2_test_setup : public e2_test_base
     e2sm_rc_control_service_style2->add_e2sm_rc_control_action_executor(std::move(rc_control_action_2_6_executor));
     e2sm_rc_packer->add_e2sm_control_service(e2sm_rc_control_service_style2.get());
     e2sm_rc_iface->add_e2sm_control_service(std::move(e2sm_rc_control_service_style2));
+    e2sm_rc_control_service_style3 = std::make_unique<e2sm_rc_control_service>(3);
+    rc_control_action_3_1_executor = std::make_unique<e2sm_rc_control_action_3_1_du_executor>(*rc_param_configurator);
+    e2sm_rc_control_service_style3->add_e2sm_rc_control_action_executor(std::move(rc_control_action_3_1_executor));
+    e2sm_rc_packer->add_e2sm_control_service(e2sm_rc_control_service_style3.get());
+    e2sm_rc_iface->add_e2sm_control_service(std::move(e2sm_rc_control_service_style3));
     e2sm_mngr = std::make_unique<e2sm_manager>(test_logger);
     e2sm_mngr->add_e2sm_service("1.3.6.1.4.1.53148.1.2.2.2", std::move(e2sm_kpm_iface));
     e2sm_mngr->add_e2sm_service("1.3.6.1.4.1.53148.1.1.2.3", std::move(e2sm_rc_iface));

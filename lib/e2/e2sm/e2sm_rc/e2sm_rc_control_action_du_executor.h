@@ -81,4 +81,31 @@ private:
                                                      const srs_du::du_mac_sched_control_config_response& du_reponse_);
 };
 
+class e2sm_rc_control_action_3_1_du_executor : public e2sm_rc_control_action_du_executor_base
+{
+public:
+  e2sm_rc_control_action_3_1_du_executor(srs_du::du_configurator& du_configurator_);
+  virtual ~e2sm_rc_control_action_3_1_du_executor() = default;
+
+  /// e2sm_control_request_executor functions.
+  bool                                  ric_control_action_supported(const e2sm_ric_control_request& req) override;
+  async_task<e2sm_ric_control_response> execute_ric_control_action(const e2sm_ric_control_request& req) override;
+  void parse_action_ran_parameter_value(const asn1::e2sm::ran_param_value_type_c& ran_p,
+                                        uint64_t                                  ran_param_id,
+                                        uint64_t                                  ue_id,
+                                        srs_du::du_mac_sched_control_config&              ctrl_cfg) override;
+  void         parse_ran_parameter_value(const asn1::e2sm::ran_param_value_type_c& ran_p,
+                                         uint64_t                                  ran_param_id,
+                                         uint64_t                                  ue_id,
+                                         srs_du::du_ho_control_config&                     ctrl_cfg);
+
+private:
+  srs_du::du_ho_control_config convert_to_du_config_request(const e2sm_ric_control_request& e2sm_req_);
+  void parse_action_ran_parameter_value(const asn1::e2sm::ran_param_value_type_c& ran_p,
+                                        uint64_t                                  ran_param_id,
+                                        uint64_t                                  ue_id,
+                                        srs_du::du_ho_control_config&                     ctrl_cfg);
+  e2sm_ric_control_response   convert_to_e2sm_response(bool response);
+};
+
 } // namespace srsran

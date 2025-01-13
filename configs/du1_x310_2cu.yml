@@ -1,0 +1,88 @@
+gnb_id: 411
+gnb_du_id: 1
+
+f1ap:
+  cu_cp_addr: 127.0.10.1
+  bind_addr: 127.0.10.2 
+
+nru:
+  queue_size: 2048
+  bind_addr: 127.0.10.2 
+
+ru_sdr:
+  device_driver: uhd
+  #device_args: type=x300,master_clock_rate=184.32e6,send_frame_size=1472,recv_frame_size=1472
+  device_args: type=x300,serial=326A4B3,send_frame_size=1472,recv_frame_size=1472
+  tx_gain: 20 #max=20
+  rx_gain: 15 #max=20
+  srate: 15.36
+  #clock: internal
+  #sync: internal
+  clock: default
+  sync: default
+
+cell_cfg:
+  # dl_arfcn: 627340                  # ARFCN of the downlink carrier (center frequency).
+  # band: 78                          # The NR band.
+  #common_scs: 30
+  dl_arfcn: 366500                  # ARFCN of the downlink carrier (center frequency).
+  band: 3
+  common_scs: 15
+  channel_bandwidth_MHz: 10         # Bandwith in MHz. Number of PRBs will be automatically derived.
+  plmn: "00101"                     # PLMN broadcasted by the gNB.
+  tac: 7                            # Tracking area code (needs to match the core configuration).
+  pci: 1
+  sector_id: 1
+  prach:
+    prach_config_index: 1           # Sets PRACH config to match what is expected by srsUE
+  #Changes to improve stability and throughput
+  sib:
+    t310: 2000
+    n310: 20
+    t311: 30000
+    n311: 1
+  mac_cell_group:
+    sr_cfg:
+      sr_trans_max: 64
+  pdsch:
+    #max_consecutive_kos: 10000
+    mcs_table: qam256
+    olla_target_bler: 0.05
+    olla_max_cqi_offset: 5
+  pusch:
+    #max_consecutive_kos: 10000
+  pucch:
+    #max_consecutive_kos: 10000
+
+log:
+  filename: /tmp/du1_x310_2cu.log            # Path of the log file.
+  all_level: info                   # Logging level applied to all layers.
+  # phy_level: warning                    # Optional TEXT (warning). Sets PHY log level.
+  # mac_level: debug                    # Optional TEXT (warning). Sets MAC log level.
+  # rlc_level: warning                    # Optional TEXT (warning). Sets RLC log level.
+  # radio_level: info                     # Optional TEXT (info). Sets radio log level.
+  # fapi_level: warning                   # Optional TEXT (warning). Sets FAPI log level.
+  # ofh_level: warning                    # Optional TEXT (warning). Sets Open Fronthaul log level.
+  # f1ap_level: debug                   # Optional TEXT (warning). Sets F1AP log level.
+  # f1u_level: debug                    # Optional TEXT (warning). Sets F1u log level.
+  # du_level: debug                     # Optional TEXT (warning). Sets DU log level.
+  # lib_level: warning                    # Optional TEXT (warning). Sets generic log level.
+  # config_level: none                    # Optional TEXT (none). Sets the config log level. 
+  # metrics_level: none                   # Optional TEXT (none). Sets the metrics log level.
+  # hex_max_size: 0                       # Optional UINT (0). Sets maximum number of bytes to print for hex messages. Supported: [0 - 1024]
+  # broadcast_enabled: false              # Optional BOOLEAN (false). Enables logging in the PHY and MAC layer of broadcast messages and all PRACH opportunities. Supported: [false, true].
+  # phy_rx_symbols_filename:              # Optional TEXT. Print received symbols to file. Symbols will be printed if a valid path is set. Format: file path. This file can be used in the srsRAN_matlab project. 
+  # phy_rx_symbols_port: 0                # Optional TEXT. Set to a valid receive port number to dump the IQ symbols from that port only, or set to "all" to dump the IQ symbols from all UL receive ports. Only works if "phy_rx_symbols_filename" is set. Supported: [NON-NEGATIVE or all].
+  # phy_rx_symbols_prach: false           # Optional BOOLEAN (false). Set to true to dump the IQ symbols from all the PRACH ports. Only works if "phy_rx_symbols_filename" is set. Supported: [false, true]. 
+  # tracing_filename:                     # Optional TEXT. Set to a valid file name to enable tracing log. 
+  # f1ap_json_enabled: false              # Optional BOOLEAN (false). Enables the JSON logging of F1AP PDUs. Supported: [false, true]. 
+  # e2ap_level: debug                   # Optional TEXT (warning). Sets E2AP log level.
+
+e2:
+  enable_du_e2: true                # Enable DU E2 agent (one for each DU instance)
+  e2sm_kpm_enabled: true            # Enable KPM service module
+  e2sm_rc_enabled: true
+  addr: 10.0.2.10                   # RIC IP address
+  # [TODO: test consequence if have same bind addr]
+  bind_addr: 10.0.2.1               # A local IP that the E2 agent binds to for traffic from the RIC. ONLY required if running the RIC on a separate machine. 
+  port: 36421                       # RIC port

@@ -72,6 +72,15 @@ e2_entity::e2_entity(const e2ap_configuration       cfg_,
 
     e2sm_rc_packer->add_e2sm_control_service(rc_control_service_style2.get());
     e2sm_rc_iface->add_e2sm_control_service(std::move(rc_control_service_style2));
+
+    // Create e2sm_rc Control Service Style 3.
+    std::unique_ptr<e2sm_control_service> rc_control_service_style3 = std::make_unique<e2sm_rc_control_service>(3);
+    std::unique_ptr<e2sm_control_action_executor> rc_control_action_3_1_executor = 
+        std::make_unique<e2sm_rc_control_action_3_1_du_executor>(*du_configurator_);
+    rc_control_service_style3->add_e2sm_rc_control_action_executor(std::move(rc_control_action_3_1_executor));
+
+    e2sm_rc_packer->add_e2sm_control_service(rc_control_service_style3.get());
+    e2sm_rc_iface->add_e2sm_control_service(std::move(rc_control_service_style3));
     e2sm_handlers.push_back(std::move(e2sm_rc_packer));
     e2sm_mngr->add_e2sm_service(e2sm_rc_asn1_packer::oid, std::move(e2sm_rc_iface));
   }

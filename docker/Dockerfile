@@ -59,7 +59,7 @@ RUN /src/docker/scripts/build_${LIB}.sh ${LIB_VERSION} ${MARCH} ${NUM_JOBS}
 
 # Compile srsRAN Project and install it in the OS
 ARG EXTRA_CMAKE_ARGS=""
-RUN if [ -z "$NUM_JOBS" ]; then NUM_JOBS=$(nproc); fi && \
+RUN if [ -z "$NUM_JOBS" ]; then NUM_JOBS=8; fi && \
     LIB_UPPER=$(echo $LIB | tr '[:lower:]' '[:upper:]') && \
     export ${LIB_UPPER}_DIR="/opt/${LIB}/${LIB_VERSION}" && \
     if [ "$LIB_UPPER" = "UHD" ]; then TARGETS="srsdu_split_8 gnb_split_8"; else TARGETS="srsdu_split_7_2 gnb_split_7_2"; fi \

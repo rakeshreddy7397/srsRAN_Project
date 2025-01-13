@@ -9,6 +9,7 @@
 db_uri: mongodb://${MONGODB_IP}/open5gs
 
 logger:
+  path: /var/log/open5gs/
 
 test:
   serving:

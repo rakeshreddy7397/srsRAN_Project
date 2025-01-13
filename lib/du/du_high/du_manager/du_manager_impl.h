@@ -76,6 +76,7 @@ public:
 
   async_task<du_mac_sched_control_config_response>
   configure_ue_mac_scheduler(du_mac_sched_control_config reconf) override;
+  async_task<bool> handle_handover_control(du_ho_control_config ctrl_config) override;
 
 private:
   // DU manager configuration that will be visible to all running procedures

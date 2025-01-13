@@ -23,6 +23,11 @@
 #include "du_ue_ric_configuration_procedure.h"
 #include "srsran/support/async/execute_on_blocking.h"
 
+#include <iostream>
+#include <fcntl.h>
+#include <unistd.h>
+#include <cstring>
+
 using namespace srsran;
 using namespace srs_du;
 
@@ -124,4 +129,48 @@ async_task<mac_ue_reconfiguration_response> du_ue_ric_configuration_procedure::h
   res_alloc_cfg.max_pusch_harq_retxs = res_alloc_cfg.max_pdsch_harq_retxs;
 
   return du_params.mac.ue_cfg.handle_ue_reconfiguration_request(mac_request);
+}
+
+du_ho_ric_trigger_procedure::du_ho_ric_trigger_procedure(du_ho_control_config ctrl_config_, std::vector<rnti_t> rnti_list_) :
+  ctrl_config(ctrl_config_), rnti_list(rnti_list_)
+{
+}
+
+void du_ho_ric_trigger_procedure::operator()(coro_context<async_task<bool>>& ctx)
+{
+  CORO_BEGIN(ctx);
+
+  int fd = open(fifoPath, O_WRONLY);
+  if (fd == -1) {
+    perror("open");
+    printf("e2 RIC HO control handling failed\n");
+  }
+  else {
+    for (size_t i = 0; i < rnti_list.size(); ++i) {
+      dispatch_ho_trigger(rnti_list[i], fd);
+      //std::this_thread::sleep_for(std::chrono::microseconds(1000));
+    }
+    close(fd);
+  }
+
+  CORO_RETURN(result);
+}
+
+void du_ho_ric_trigger_procedure::dispatch_ho_trigger(rnti_t rnti, int fd)
+{
+  srslog::basic_logger& logger = srslog::fetch_basic_logger("E2");
+  
+  std::string formatted_rnti = fmt::format(
+    "ho {} {:#x} {}\n", 
+    ctrl_config.source_pci, 
+    static_cast<std::underlying_type_t<srsran::rnti_t>>(rnti),
+    ctrl_config.target_pci
+  );
+  if (-1 != write(fd, formatted_rnti.c_str(), formatted_rnti.length())){
+    result = true;
+    logger.info("Triggered HO to CU with:\t{}", formatted_rnti.c_str());
+  }
+  else{
+    logger.info("HO trigger failed,\t{}", formatted_rnti.c_str());
+  }
 }

@@ -1,11 +1,10 @@
-gnb_id: 411
-ran_node_name: cu_cp_01
+gnb_id: 412
+ran_node_name: cu_cp_02
 
 cu_cp:
   amf:
     addr: 10.53.1.2
-    bind_addr: 10.53.1.1
-    bind_interface: auto
+    bind_addr: 10.53.1.11
     supported_tracking_areas: # List of tracking areas supported by this AMF. Note that the first PLMN is used for the Global RAN Node ID
       - tac: 7
         plmn_list:
@@ -13,12 +12,35 @@ cu_cp:
             tai_slice_support_list:
               - sst: 1
   f1ap:
-    bind_addr: 127.0.10.1
+    bind_addr: 127.0.10.3
   inactivity_timer: 7200
+  mobility:
+    #trigger_handover_from_measurements: false
+    # cells:
+    #   - nr_cell_id: 0x66C000          # For the default gnb_id=411 (gnb_id_bit_length=22), NR cell IDs start with 0x66C000 and increment for each cell of the DU.
+    #     periodic_report_cfg_id: 1     # This will configure a periodical report config for the serving cell.
+    #     ncells:                       # List of nr_cell_ids that are a neighbor of this serving cell.
+    #       - nr_cell_id: 0x66C001
+    #         report_configs: [ 2 ]
+    #   - nr_cell_id: 0x66C001
+    #     periodic_report_cfg_id: 1
+    #     ncells:
+    #         - nr_cell_id: 0x66C000
+    #           report_configs: [ 2 ]
+    # report_configs:
+    #   - report_cfg_id: 1
+    #     report_type: periodical
+    #     report_interval_ms: 480
+    #   - report_cfg_id: 2
+    #     report_type: event_triggered
+    #     a3_report_type: rsrp
+    #     a3_offset_db: 3
+    #     a3_hysteresis_db: 0
+    #     a3_time_to_trigger_ms: 100
 
 cu_up:
   nru:
-    bind_addr: 127.0.10.1
+    bind_addr: 127.0.10.3
     udp_max_rx_msgs: 256
 
 e2:
@@ -27,11 +49,11 @@ e2:
   e2sm_kpm_enabled: true            # Enable KPM service module
   e2sm_rc_enabled: true
   addr: 10.0.2.10                   # RIC IP address
-  bind_addr: 10.0.2.1               # A local IP that the E2 agent binds to for traffic from the RIC. ONLY required if running the RIC on a separate machine. 
+  bind_addr: 10.0.2.1              # A local IP that the E2 agent binds to for traffic from the RIC. ONLY required if running the RIC on a separate machine. 
   port: 36421                       # RIC port
 
 log:
-  filename: /tmp/cu.log
+  filename: /tmp/cu2.log
   all_level: info # debug | info | warning
   cu_level: debug                     # Optional TEXT (warning). Sets the CU log level. 
   rrc_level: debug                    # Optional TEXT (warning). Sets RRC log level.
@@ -53,3 +75,8 @@ log:
 pcap:
   ngap_enable: false
   ngap_filename: /tmp/cu_ngap.pcap
+
+metrics: 
+  pdcp_report_period: 0                 # Optional UINT (0). Sets the PDCP metrics report period. 
+  cu_cp_statistics_report_period: 1     # Optional UINT (1). Sets the CU-CP statistics report period in seconds. Set this value to 0 to disable this feature. Supported: [0 - inf]. 
+  cu_up_statistics_report_period: 1     # Optional UINT (1). Sets the CU-UP statistics report period in seconds. Set this value to 0 to disable this feature. Supported: [0 - inf]. 

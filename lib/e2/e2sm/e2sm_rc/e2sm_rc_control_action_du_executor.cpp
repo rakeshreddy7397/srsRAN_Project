@@ -299,3 +299,176 @@ e2sm_ric_control_response e2sm_rc_control_action_2_6_du_executor::convert_to_e2s
 
   return e2sm_response;
 }
+
+e2sm_rc_control_action_3_1_du_executor::e2sm_rc_control_action_3_1_du_executor(srs_du::du_configurator& du_configurator_) :
+  e2sm_rc_control_action_du_executor_base(du_configurator_, 1)
+{
+  // Control Action description:
+  // To control the connected mode mobility for handover
+  /*
+  action_name = "Handover Control";
+  action_params.insert({1, "Target Primary Cell ID"});
+  action_params.insert({2, "Target Cell"});
+  action_params.insert({3, "NR Cell"});
+  action_params.insert({4, "NR CGI"});
+  action_params.insert({5, "E-UTRA Cell"});
+  action_params.insert({6, "E-UTRA CGI"});
+  action_params.insert({7, "List of PDU sessions for handover"});
+  action_params.insert({8, "PDU session Item for handover"});
+  action_params.insert({9, "PDU Session ID"});
+  action_params.insert({10, "List of QoS flows in the PDU session"});
+  action_params.insert({11, "QoS flow Item"});
+  action_params.insert({12, "QoS Flow Identifier"});
+  action_params.insert({13, "List of DRBs for handover"});
+  action_params.insert({14, "DRB item for handover"});
+  action_params.insert({15, "DRB ID"});
+  action_params.insert({16, "List of QoS flows in the DRB"});
+  action_params.insert({17, "QoS flow Item"});
+  action_params.insert({18, "QoS flow Identifier"});
+  action_params.insert({19, "List of Secondary cells to be setup"});
+  action_params.insert({20, "Secondary cell Item to be setup"});
+  action_params.insert({21, "Secondary cell ID"});
+  */
+  action_name = "Slice-level PRB quota";
+  action_params.insert({1, "RRM Policy Ratio List"});
+  action_params.insert({2, "RRM Policy Ratio Group"});
+  action_params.insert({3, "RRM Policy"});
+  action_params.insert({5, "RRM Policy Member List"});
+  action_params.insert({6, "RRM Policy Member"});
+  action_params.insert({7, "PLMN Identity"});
+  action_params.insert({8, "S-NSSAI"});
+  action_params.insert({9, "SST"});
+  action_params.insert({10, "SD"});
+  action_params.insert({11, "Min PRB Policy Ratio"});
+  action_params.insert({12, "Max PRB Policy Ratio"});
+  action_params.insert({13, "Dedicated PRB Policy Ratio"});
+};
+
+void e2sm_rc_control_action_3_1_du_executor::parse_ran_parameter_value(const asn1::e2sm::ran_param_value_type_c& ran_param,
+                                         uint64_t                                  ran_param_id,
+                                         uint64_t                                  ue_id,
+                                         srs_du::du_ho_control_config&             ctrl_cfg)
+{
+  if (ran_param.type() == ran_param_value_type_c::types_opts::ran_p_choice_list) {
+    for (auto& ran_p_list : ran_param.ran_p_choice_list().ran_param_list.list_of_ran_param) {
+      for (auto& ran_p : ran_p_list.seq_of_ran_params) {
+        if (action_params.find(ran_p.ran_param_id) != action_params.end()) {
+          parse_ran_parameter_value(ran_p.ran_param_value_type, ran_p.ran_param_id, ue_id, ctrl_cfg);
+        }
+      }
+    }
+  } else if (ran_param.type() == ran_param_value_type_c::types_opts::ran_p_choice_structure) {
+    for (auto& ran_seq : ran_param.ran_p_choice_structure().ran_param_structure.seq_of_ran_params) {
+      if (action_params.find(ran_seq.ran_param_id) != action_params.end()) {
+        parse_ran_parameter_value(ran_seq.ran_param_value_type, ran_seq.ran_param_id, ue_id, ctrl_cfg);
+      }
+    }
+  } else if (ran_param.type() == ran_param_value_type_c::types_opts::ran_p_choice_elem_false) {
+    parse_action_ran_parameter_value(ran_param, ran_param_id, ue_id, ctrl_cfg);
+  }
+}
+
+void e2sm_rc_control_action_3_1_du_executor::parse_action_ran_parameter_value(const asn1::e2sm::ran_param_value_type_c& ran_param,
+                                                                              uint64_t                                  ran_param_id,
+                                                                              uint64_t                                  ue_id,
+                                                                              srs_du::du_ho_control_config&             ctrl_cfg)
+{
+  if (action_params[ran_param_id] == "PLMN Identity") {
+    logger.info("Ignoring RAN parameter ID {}", ran_param_id);
+    return;
+  } else if (action_params[ran_param_id] == "SST") {
+    logger.info("Ignoring RAN parameter ID {}", ran_param_id);
+    return;
+  } else if (action_params[ran_param_id] == "SD") {
+    logger.info("Ignoring RAN parameter ID {}", ran_param_id);
+    return;
+  } else if (action_params[ran_param_id] == "Min PRB Policy Ratio") {
+    logger.info("Ignoring RAN parameter ID {}", ran_param_id);
+    return;
+  } else if (action_params[ran_param_id] == "Max PRB Policy Ratio") {
+    ctrl_cfg.source_pci = ran_param.ran_p_choice_elem_false().ran_param_value.value_int();
+  } else if (action_params[ran_param_id] == "Dedicated PRB Policy Ratio") {
+    ctrl_cfg.target_pci = ran_param.ran_p_choice_elem_false().ran_param_value.value_int();
+  } else {
+    logger.error("Unknown RAN parameter ID {}", ran_param_id);
+    return;
+  }
+}
+
+void e2sm_rc_control_action_3_1_du_executor::parse_action_ran_parameter_value(const ran_param_value_type_c& ran_param,
+                                                                              uint64_t                     ran_param_id,
+                                                                              uint64_t                     ue_id,
+                                                                              srs_du::du_mac_sched_control_config& ctrl_cfg)
+{
+  return;
+}
+
+bool e2sm_rc_control_action_3_1_du_executor::ric_control_action_supported(const e2sm_ric_control_request& req)
+{
+  const e2sm_rc_ctrl_msg_format1_s& ctrl_msg =
+      std::get<e2sm_rc_ctrl_msg_s>(req.request_ctrl_msg).ric_ctrl_msg_formats.ctrl_msg_format1();
+
+  for (auto& ran_p : ctrl_msg.ran_p_list) {
+    if (action_params.find(ran_p.ran_param_id) == action_params.end()) {
+      return false;
+    }
+  };
+  return true;
+};
+
+async_task<e2sm_ric_control_response>
+e2sm_rc_control_action_3_1_du_executor::execute_ric_control_action(const e2sm_ric_control_request& req)
+{
+  srs_du::du_ho_control_config ctrl_config = convert_to_du_config_request(req);
+  return launch_async(
+      [this, ctrl_config = std::move(ctrl_config)](coro_context<async_task<e2sm_ric_control_response>>& ctx) {
+        CORO_BEGIN(ctx);
+        bool response;
+        CORO_AWAIT_VALUE(response, du_param_configurator.handle_handover_control(ctrl_config));
+        e2sm_ric_control_response e2_resp = convert_to_e2sm_response(response);
+        CORO_RETURN(e2_resp);
+      });
+};
+
+srs_du::du_ho_control_config
+e2sm_rc_control_action_3_1_du_executor::convert_to_du_config_request(const e2sm_ric_control_request& e2sm_req_)
+{
+  srs_du::du_ho_control_config   ctrl_config = {};
+  const e2sm_rc_ctrl_hdr_format1_s& ctrl_hdr =
+      std::get<e2sm_rc_ctrl_hdr_s>(e2sm_req_.request_ctrl_hdr).ric_ctrl_hdr_formats.ctrl_hdr_format1();
+  const e2sm_rc_ctrl_msg_format1_s& ctrl_msg =
+      std::get<e2sm_rc_ctrl_msg_s>(e2sm_req_.request_ctrl_msg).ric_ctrl_msg_formats.ctrl_msg_format1();
+  switch (ctrl_hdr.ue_id.type()) {
+    case ue_id_c::types_opts::gnb_ue_id:
+      ctrl_config.ue_id = ctrl_hdr.ue_id.gnb_ue_id().amf_ue_ngap_id;
+      break;
+    case ue_id_c::types_opts::gnb_du_ue_id:
+      ctrl_config.ue_id = ctrl_hdr.ue_id.gnb_du_ue_id().gnb_cu_ue_f1ap_id;
+      break;
+    default:
+      ctrl_config.ue_id = 0;
+      break;
+  }
+
+  for (auto& ran_p : ctrl_msg.ran_p_list) {
+    if (action_params.find(ran_p.ran_param_id) != action_params.end()) {
+      parse_ran_parameter_value(ran_p.ran_param_value_type, ran_p.ran_param_id, ctrl_config.ue_id, ctrl_config);
+    }
+  }
+  return ctrl_config;
+}
+
+e2sm_ric_control_response e2sm_rc_control_action_3_1_du_executor::convert_to_e2sm_response(bool response)
+{
+  e2sm_ric_control_response e2sm_response;
+  e2sm_response.success = response;
+
+  // Always fill outcome here, it will be decided later whether it should be included in the e2 response.
+  e2sm_response.ric_ctrl_outcome_present       = false;
+
+  if (!e2sm_response.success) {
+    e2sm_response.cause.set_misc().value = cause_misc_e::options::unspecified;
+  }
+
+  return e2sm_response;
+}

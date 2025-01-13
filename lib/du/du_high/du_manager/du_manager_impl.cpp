@@ -214,3 +214,10 @@ du_manager_impl::configure_ue_mac_scheduler(du_mac_sched_control_config reconf)
 {
   return launch_async<srs_du::du_ue_ric_configuration_procedure>(reconf, ue_mng, params);
 }
+
+async_task<bool>
+du_manager_impl::handle_handover_control(du_ho_control_config ctrl_config)
+{  
+  std::vector<rnti_t> rnti_list = ue_mng.get_rnti_list();
+  return launch_async<srs_du::du_ho_ric_trigger_procedure>(ctrl_config, rnti_list);
+}

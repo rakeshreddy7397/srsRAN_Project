@@ -42,6 +42,12 @@ struct du_mac_sched_control_config {
   std::vector<control_config_params> param_list;
 };
 
+struct du_ho_control_config {
+  uint64_t                           ue_id;
+  uint16_t                           source_pci;
+  uint16_t                           target_pci;
+};
+
 struct du_mac_sched_control_config_response {
   bool harq_processes_result;
   bool min_prb_alloc_result;
@@ -55,6 +61,7 @@ public:
 
   virtual async_task<du_mac_sched_control_config_response>
   configure_ue_mac_scheduler(du_mac_sched_control_config reconf) = 0;
+  virtual async_task<bool> handle_handover_control(du_ho_control_config ctrl_config) = 0;
 };
 
 } // namespace srs_du

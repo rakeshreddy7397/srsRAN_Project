@@ -57,5 +57,20 @@ private:
   manual_event<du_mac_sched_control_config_response> ue_config_completed;
 };
 
+class du_ho_ric_trigger_procedure
+{
+public:
+  du_ho_ric_trigger_procedure(du_ho_control_config ctrl_config_, std::vector<rnti_t> rnti_list_);
+  void operator()(coro_context<async_task<bool>>& ctx);
+  const char* name() const { return "RIC HO trigger"; }
+
+private:
+  du_ho_control_config ctrl_config;
+  std::vector<rnti_t> rnti_list;
+  void dispatch_ho_trigger(rnti_t rnti, int fd);
+  bool result = false;
+  const char* fifoPath = "/tmp/ForcedHoFifo";
+};
+
 } // namespace srs_du
 } // namespace srsran

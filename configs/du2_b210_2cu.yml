@@ -1,0 +1,71 @@
+gnb_id: 412
+gnb_du_id: 1
+
+f1ap:
+  cu_cp_addr: 127.0.10.3
+  bind_addr: 127.0.10.4
+
+nru:
+  queue_size: 2048
+  bind_addr: 127.0.10.4 
+
+ru_sdr:
+  device_driver: uhd                                            # The RF driver name.
+  #device_args: type=b200,serial=30D3F40,num_recv_frames=64,num_send_frames=64  # Optionally pass arguments to the selected RF driver.
+  #device_args: type=b200,serial=30D3F40,recv_frame_size=1032
+  device_args: type=b200,serial=30D3F21,recv_frame_size=1032
+  #sync: internal                                                # Specify the sync source used by the RF. NOTE: Set to internal if NOT using an external 10 MHz reference clock. 
+  #clock: internal
+  clock: default
+  sync: default
+  #srate: 23.04                                                  # RF sample rate might need to be adjusted according to selected bandwidth.
+  srate: 11.52
+  #otw_format: sc12
+  tx_gain: 80                                                   # Transmit gain of the RF might need to adjusted to the given situation.
+  rx_gain: 40
+
+cell_cfg:
+  dl_arfcn: 368500                  # ARFCN of the downlink carrier (center frequency).
+  band: 3                          # The NR band.
+  #channel_bandwidth_MHz: 20         # Bandwith in MHz. Number of PRBs will be automatically derived.
+  channel_bandwidth_MHz: 10
+  common_scs: 15
+  plmn: "00101"                     # PLMN broadcasted by the gNB.
+  tac: 7                            # Tracking area code (needs to match the core configuration).
+  pci: 2
+  sector_id: 1
+  prach:
+    prach_config_index: 1           # Sets PRACH config to match what is expected by srsUE
+  sib:
+    t310: 2000
+    n310: 20
+    t311: 30000
+    n311: 1
+  mac_cell_group:
+    sr_cfg:
+      sr_trans_max: 64
+  pdsch:
+    #max_consecutive_kos: 10000
+    mcs_table: qam256
+  pusch:
+    #max_consecutive_kos: 10000
+  pucch:
+    #max_consecutive_kos: 10000
+
+log:
+  filename: /tmp/du2_b210_2cu.log            # Path of the log file.
+  all_level: info                   # Logging level applied to all layers.
+  # mac_level: debug                    # Optional TEXT (warning). Sets MAC log level.
+  # f1ap_level: debug                   # Optional TEXT (warning). Sets F1AP log level.
+  # f1u_level: debug                    # Optional TEXT (warning). Sets F1u log level.
+  # du_level: debug                     # Optional TEXT (warning). Sets DU log level.
+  # e2ap_level: debug                   # Optional TEXT (warning). Sets E2AP log level.
+
+e2:
+  enable_du_e2: true                # Enable DU E2 agent (one for each DU instance)
+  e2sm_kpm_enabled: true            # Enable KPM service module
+  e2sm_rc_enabled: true
+  addr: 10.0.2.10                   # RIC IP address
+  # [TODO: test consequence if have same bind addr]
+  bind_addr: 10.0.2.1              # A local IP that the E2 agent binds to for traffic from the RIC. ONLY required if running the RIC on a separate machine. 
+  port: 36421                       # RIC port
